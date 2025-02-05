@@ -1,0 +1,6 @@
+## Interface: 11200
+## Title: ArcaneSurgeWarning
+## Notes: Detect Arcane Surge spell and show icon
+## Author: Trovi
+## Version: 1.0
+ArcaneSurgeWarning.lua
