@@ -84,7 +84,6 @@ local actionSlot = FindActionSlotByTexture("Interface\\Icons\\INV_Enchant_Essenc
 
 local function IsActionUsable()
     local isUsable, notEnoughMana = IsUsableAction(actionSlot)
-    print(isUsable)
     return isUsable and not notEnoughMana
 end
 
@@ -101,7 +100,7 @@ local function ActivateIcon()
     activeSurge = true
     surgeTimer = 4 -- Always reset timer to 4 seconds
     --warningFrame:Show() -- Show icon only when active
-    print("[ActivateIcon] surgeTimer:", surgeTimer)
+    --print("[ActivateIcon] surgeTimer:", surgeTimer)
 end
 
 local function DeactivateIcon()
@@ -109,7 +108,7 @@ local function DeactivateIcon()
     activeSurge = false
     surgeBar:SetValue(0)
     --warningFrame:Hide() -- Hide icon when inactive
-    print("[DeactivateIcon] Icon deactivated")
+    --print("[DeactivateIcon] Icon deactivated")
 end
 
 -- OnUpdate handler to manage timing and update countdown
@@ -134,9 +133,9 @@ warningFrame:SetScript("OnUpdate", function()
         cooldownBar:SetValue(0)
         cooldownText:SetText("") -- Clear cooldown when ready
     end
-
+    local remaining = (start + duration) - GetTime()
     -- Check action usability status
-    if IsActionUsable() then
+    if IsActionUsable() and remaining < surgeTimer then
         warningIcon:SetDesaturated(false)
         warningIcon:Show()
         surgeBar:Show()
@@ -169,19 +168,19 @@ end
 
 frame:SetScript("OnEvent", function()
     if event == "COMBAT_TEXT_UPDATE" and arg1 == "SPELL_ACTIVE" and arg2 == "Arcane Surge" then
-        print("[Event] Arcane Surge activated")
+        --print("[Event] Arcane Surge activated")
         ActivateIcon()
     end
 
     if event == "CHAT_MSG_SPELL_SELF_DAMAGE" then
         if string.find(arg1, "resist") or string.find(arg1, "Resist") then
-            print("[Event] Spell resisted on target")
+            --print("[Event] Spell resisted on target")
             ActivateIcon()
         end
     end
 
     if event == "CHAT_MSG_SPELL_SELF_DAMAGE" and string.find(arg1, "Your Arcane Surge") then
-        print("[Event] Arcane Surge hit")
+        --print("[Event] Arcane Surge hit")
         DeactivateIcon()
     end
 end)
