@@ -7,16 +7,16 @@ warningFrame:SetWidth(50)
 warningFrame:SetHeight(50)
 warningFrame:SetPoint("CENTER", UIParent, "CENTER")
 
--- Add a backdrop for easier interaction
-warningFrame:SetBackdrop({
-    bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-    edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-    tile = true,
-    tileSize = 16,
-    edgeSize = 16,
-    insets = { left = 4, right = 4, top = 4, bottom = 4 }
-})
-warningFrame:SetBackdropColor(0, 0, 0, 0.5)
+-- -- Add a backdrop for easier interaction
+-- warningFrame:SetBackdrop({
+--     bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+--     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+--     tile = true,
+--     tileSize = 16,
+--     edgeSize = 16,
+--     insets = { left = 4, right = 4, top = 4, bottom = 4 }
+-- })
+-- warningFrame:SetBackdropColor(0, 0, 0, 0.5)
 
 warningFrame:SetFrameStrata("HIGH")
 warningFrame:SetMovable(true)
@@ -84,6 +84,7 @@ local actionSlot = FindActionSlotByTexture("Interface\\Icons\\INV_Enchant_Essenc
 
 local function IsActionUsable()
     local isUsable, notEnoughMana = IsUsableAction(actionSlot)
+    print(isUsable)
     return isUsable and not notEnoughMana
 end
 
@@ -96,15 +97,15 @@ local function GetCooldown()
 end
 
 local function ActivateIcon()
-    warningIcon:SetDesaturated(false)
+    --warningIcon:SetDesaturated(false)
     activeSurge = true
     surgeTimer = 4 -- Always reset timer to 4 seconds
-    warningFrame:Show() -- Show icon only when active
+    --warningFrame:Show() -- Show icon only when active
     print("[ActivateIcon] surgeTimer:", surgeTimer)
 end
 
 local function DeactivateIcon()
-    warningIcon:SetDesaturated(true)
+    --warningIcon:SetDesaturated(true)
     activeSurge = false
     surgeBar:SetValue(0)
     --warningFrame:Hide() -- Hide icon when inactive
@@ -137,11 +138,17 @@ warningFrame:SetScript("OnUpdate", function()
     -- Check action usability status
     if IsActionUsable() then
         warningIcon:SetDesaturated(false)
-        warningFrame:Show()
+        warningIcon:Show()
+        surgeBar:Show()
+        cooldownBar:Show()
+        cooldownText:Show()
     else
         warningIcon:SetDesaturated(true)
         if not activeSurge then
-            --warningFrame:Hide() -- Ensure icon stays hidden when not active and not procced
+            warningIcon:Hide() 
+            surgeBar:Hide() 
+            cooldownText:Hide()
+            cooldownBar:Hide() -- Ensure icon stays hidden when not active and not procced
         end
     end
 end)
