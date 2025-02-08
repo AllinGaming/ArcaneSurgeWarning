@@ -1,6 +1,7 @@
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_TEXT_UPDATE")
 frame:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 local warningFrame = CreateFrame("Button", "WarningIconFrame", UIParent)
 warningFrame:SetWidth(50)
@@ -79,7 +80,7 @@ local function FindActionSlotByTexture(texture)
     return nil
 end
 
-local actionSlot = FindActionSlotByTexture("Interface\\Icons\\INV_Enchant_EssenceMysticalLarge")
+local actionSlot = nil --FindActionSlotByTexture("Interface\\Icons\\INV_Enchant_EssenceMysticalLarge")
 --local actionSlot = 12 -- Change this to the slot number where Arcane Surge is located on your action bar
 
 local function IsActionUsable()
@@ -171,7 +172,9 @@ frame:SetScript("OnEvent", function()
         --print("[Event] Arcane Surge activated")
         ActivateIcon()
     end
-
+    if event == "PLAYER_ENTERING_WORLD" then
+        actionSlot = FindActionSlotByTexture("Interface\\Icons\\INV_Enchant_EssenceMysticalLarge")
+     end
     if event == "CHAT_MSG_SPELL_SELF_DAMAGE" then
         if string.find(arg1, "resist") or string.find(arg1, "Resist") then
             --print("[Event] Spell resisted on target")
