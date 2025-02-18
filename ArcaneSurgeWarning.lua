@@ -2,38 +2,49 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("COMBAT_TEXT_UPDATE")
 frame:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("ADDON_LOADED")
 
 local warningFrame = CreateFrame("Button", "WarningIconFrame", UIParent)
-warningFrame:SetWidth(50)
-warningFrame:SetHeight(50)
-warningFrame:SetPoint("CENTER", UIParent, "CENTER")
+warningFrame:SetWidth(40)
+warningFrame:SetHeight(40)
 
--- -- Add a backdrop for easier interaction
--- warningFrame:SetBackdrop({
---     bgFile = "Interface/Tooltips/UI-Tooltip-Background",
---     edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
---     tile = true,
---     tileSize = 16,
---     edgeSize = 16,
---     insets = { left = 4, right = 4, top = 4, bottom = 4 }
--- })
--- warningFrame:SetBackdropColor(0, 0, 0, 0.5)
-
-warningFrame:SetFrameStrata("HIGH")
-warningFrame:SetMovable(true)
-warningFrame:EnableMouse(true)
-warningFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-
--- Dragging functionality for WoW 1.12.1
-warningFrame:SetScript("OnMouseDown", function()
-    if IsShiftKeyDown() then
-        warningFrame:StartMoving()
+-- Load position from saved variables
+local function LoadPosition()
+    if ICON_POSITION then
+        local pos = ICON_POSITION      
+        if ICON_POSITION then
+            DEFAULT_CHAT_FRAME:AddMessage(pos.x)
+            DEFAULT_CHAT_FRAME:AddMessage(pos.y)
+        end
+        warningFrame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", pos.x, pos.y)
+    else
+        warningFrame:SetPoint("CENTER", UIParent, "CENTER")
     end
-end)
+end
 
-warningFrame:SetScript("OnMouseUp", function()
-    warningFrame:StopMovingOrSizing()
-end)
+
+local function Initialise()
+    LoadPosition()
+    warningFrame:SetFrameStrata("HIGH")
+    warningFrame:SetMovable(false)
+    warningFrame:EnableMouse(false)
+    warningFrame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+    -- Dragging functionality for WoW 1.12.1
+    warningFrame:SetScript("OnMouseDown", function()
+        if IsShiftKeyDown() then
+            warningFrame:StartMoving()
+        end
+    end)
+
+    warningFrame:SetScript("OnMouseUp", function()
+        warningFrame:StopMovingOrSizing()
+        local xOfs = warningFrame:GetLeft()
+        local yOfs = warningFrame:GetTop()
+        ICON_POSITION = { x = xOfs, y = yOfs }
+    end)
+end
+
 
 local warningIcon = warningFrame:CreateTexture(nil, "OVERLAY")
 warningIcon:SetAllPoints(warningFrame)
@@ -41,7 +52,7 @@ warningIcon:SetTexture("Interface\\Icons\\INV_Enchant_EssenceMysticalLarge") -- 
 
 -- Cooldown Progress Bar
 local cooldownBar = CreateFrame("StatusBar", nil, warningFrame)
-cooldownBar:SetWidth(50)
+cooldownBar:SetWidth(40)
 cooldownBar:SetHeight(5)
 cooldownBar:SetPoint("BOTTOM", warningFrame, "TOP", 0, 2)
 cooldownBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
@@ -57,7 +68,7 @@ cooldownText:SetTextColor(1, 1, 1, 1)
 
 -- Surge Duration Progress Bar
 local surgeBar = CreateFrame("StatusBar", nil, warningFrame)
-surgeBar:SetWidth(50)
+surgeBar:SetWidth(40)
 surgeBar:SetHeight(5)
 surgeBar:SetPoint("TOP", warningFrame, "BOTTOM", 0, -2)
 surgeBar:SetStatusBarTexture("Interface\\TARGETINGFRAME\\UI-StatusBar")
@@ -153,6 +164,7 @@ warningFrame:SetScript("OnUpdate", function()
     end
 end)
 
+
 -- Function to lock/unlock the icon position
 SLASH_LOCKICON1 = "/lockicon"
 SlashCmdList["LOCKICON"] = function(msg)
@@ -168,6 +180,7 @@ SlashCmdList["LOCKICON"] = function(msg)
 end
 
 frame:SetScript("OnEvent", function()
+
     if event == "COMBAT_TEXT_UPDATE" and arg1 == "SPELL_ACTIVE" and arg2 == "Arcane Surge" then
         --print("[Event] Arcane Surge activated")
         ActivateIcon()
@@ -186,4 +199,9 @@ frame:SetScript("OnEvent", function()
         --print("[Event] Arcane Surge hit")
         DeactivateIcon()
     end
+
+    if event == "ADDON_LOADED" and arg1 == "ArcaneSurgeWarning" then
+        Initialise()       
+    end
+
 end)
